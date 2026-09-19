@@ -14,6 +14,10 @@ from src.parser import ParseError, parse_line
 
 OUTPUT_HEIGHT = 24
 OUTPUT_WIDTH = 80
+MIN_WINDOW_WIDTH = 640
+MIN_WINDOW_HEIGHT = 400
+PADDING = 4
+FONT = "TkFixedFont"
 PROMPT = "$ "
 WELCOME = "Эмулятор оболочки. Доступны команды: ls, cd, exit."
 
@@ -49,22 +53,36 @@ class EmulatorWindow:
         """
         self.master = master
         self.master.title(build_title())
+        self.master.minsize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
         self.output = tk.Text(
             master,
             height=OUTPUT_HEIGHT,
             width=OUTPUT_WIDTH,
             state=tk.DISABLED,
+            font=FONT,
         )
-        self.entry = tk.Entry(master)
+        self.entry = tk.Entry(master, font=FONT)
         self.place_widgets()
         self.entry.bind("<Return>", self.on_enter)
         self.entry.focus_set()
         self.write(WELCOME)
 
     def place_widgets(self):
-        """Разместить виджеты в окне."""
-        self.output.pack(fill=tk.BOTH, expand=True)
-        self.entry.pack(fill=tk.X)
+        """Разместить виджеты в окне.
+
+        Поле ввода размещается первым и прижимается к нижнему краю,
+        поэтому оно сохраняет свою высоту при любом размере окна.
+        """
+        self.entry.pack(
+            side=tk.BOTTOM, fill=tk.X, padx=PADDING, pady=PADDING
+        )
+        self.output.pack(
+            side=tk.TOP,
+            fill=tk.BOTH,
+            expand=True,
+            padx=PADDING,
+            pady=PADDING,
+        )
 
     def write(self, text):
         """Добавить строку текста в область вывода.
