@@ -14,6 +14,7 @@ import tkinter as tk
 from src.commands import CommandError, ExitRequested, execute
 from src.config import format_config
 from src.parser import ParseError, parse_line
+from src.session import Session
 from src.script import ScriptError, is_executable_line, read_script_lines
 
 OUTPUT_HEIGHT = 24
@@ -62,6 +63,7 @@ class EmulatorWindow:
         """
         self.master = master
         self.config = config
+        self.session = Session()
         self.closed = False
         self.master.title(build_title())
         self.master.minsize(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
@@ -147,7 +149,7 @@ class EmulatorWindow:
         :return: True, если команда выполнена без ошибок.
         """
         try:
-            self.write(execute(tokens))
+            self.write(execute(tokens, self.session))
         except CommandError as error:
             self.write(str(error))
             return False
