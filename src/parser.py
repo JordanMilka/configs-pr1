@@ -32,12 +32,16 @@ def read_braced_name(text, start):
     :param text: исходная строка.
     :param start: позиция открывающей скобки.
     :return: кортеж из имени переменной и позиции после имени.
-    :raises ParseError: если закрывающая скобка отсутствует.
+    :raises ParseError: если закрывающая скобка отсутствует или имя
+        переменной пусто либо содержит недопустимые символы.
     """
     end = text.find(BRACE_CLOSE, start)
     if end == NOT_FOUND:
         raise ParseError("не закрыта фигурная скобка в имени переменной")
-    return text[start + 1:end], end + 1
+    name = text[start + 1:end]
+    if not name or not all(is_name_symbol(symbol) for symbol in name):
+        raise ParseError("неверное имя переменной в фигурных скобках")
+    return name, end + 1
 
 
 def read_plain_name(text, start):

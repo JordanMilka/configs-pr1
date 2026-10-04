@@ -42,6 +42,16 @@ class ExpandVariablesTest(unittest.TestCase):
         with self.assertRaises(ParseError):
             expand_variables("${HOME")
 
+    def test_empty_braced_name(self):
+        """Пустое имя в фигурных скобках приводит к ошибке разбора."""
+        with self.assertRaises(ParseError):
+            expand_variables("${}")
+
+    def test_invalid_braced_name(self):
+        """Недопустимые символы в имени приводят к ошибке разбора."""
+        with self.assertRaises(ParseError):
+            expand_variables("${A B}")
+
 
 class ParseLineTest(unittest.TestCase):
     """Проверка разделения строки на токены."""
