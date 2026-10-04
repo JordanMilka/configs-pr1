@@ -28,7 +28,7 @@ class ExecuteTest(unittest.TestCase):
         """В реестре есть все команды эмулятора."""
         expected = [
             "ls", "cd", "cat", "uniq", "chown", "rm",
-            "vfs-info", "vfs-tree", "exit",
+            "vfs-info", "vfs-tree", "help", "exit",
         ]
         self.assertEqual(list(COMMANDS), expected)
 

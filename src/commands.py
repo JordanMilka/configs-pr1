@@ -3,15 +3,19 @@
 Реестр COMMANDS связывает имена команд с обработчиками. Каждый
 обработчик принимает список аргументов и объект Session и возвращает
 текст для вывода. Здесь собраны служебные команды vfs-info и
-vfs-tree и команда exit; ls и cd находятся в src.navigation, cat и
-uniq - в src.text_tools, chown и rm - в src.modification.
+vfs-tree, help и exit; ls и cd находятся в src.navigation, cat и uniq -
+в src.text_tools, chown и rm - в src.modification, а тексты справки - в
+src.help_text.
 """
 
 from src.errors import CommandError, ExitRequested
+from src.help_text import HELP, format_entry, format_list
 from src.modification import command_chown, command_rm
 from src.navigation import command_cd, command_ls
 from src.text_tools import command_cat, command_uniq
 from src.vfs import format_info, format_tree
+
+MAX_HELP_ARGUMENTS = 1
 
 
 def reject_arguments(name, arguments):
@@ -25,6 +29,24 @@ def reject_arguments(name, arguments):
         raise CommandError(
             "{0}: команда не принимает аргументов".format(name)
         )
+
+
+def command_help(arguments, session):
+    """Показать список команд или справку по одной команде.
+
+    :param arguments: список аргументов команды.
+    :param session: состояние сеанса.
+    :return: список всех команд или подробная справка по команде.
+    :raises CommandError: если аргументов больше одного или справки
+        по такой команде нет.
+    """
+    if len(arguments) > MAX_HELP_ARGUMENTS:
+        raise CommandError("help: слишком много аргументов")
+    if not arguments:
+        return format_list(list(COMMANDS))
+    if arguments[0] not in HELP:
+        raise CommandError("help: нет справки по '{0}'".format(arguments[0]))
+    return format_entry(arguments[0])
 
 
 def command_exit(arguments, session):
@@ -87,6 +109,7 @@ COMMANDS = {
     "rm": command_rm,
     "vfs-info": command_vfs_info,
     "vfs-tree": command_vfs_tree,
+    "help": command_help,
     "exit": command_exit,
 }
 
