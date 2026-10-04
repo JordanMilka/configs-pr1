@@ -1,0 +1,20 @@
+# Стартовый скрипт этапа 3: все команды этапов 1-3 в рабочих режимах.
+# Запуск: python3 -m src.main --vfs data/nested.zip \
+#     --script scripts/emulator/stage3_all.txt
+# Скрипт останавливается на первой ошибке, поэтому ошибочные ситуации
+# проверяют отдельные скрипты stage3_error_*.txt.
+
+# Этап 1: команды-заглушки и раскрытие переменных окружения
+ls
+ls -l /etc
+ls $HOME ${HOME}/docs $NO_SUCH_VARIABLE
+cd /home
+cd ${HOME}
+cd
+
+# Этап 3: служебные команды VFS (без изменения данных)
+vfs-info
+vfs-tree
+
+# Завершение работы
+exit

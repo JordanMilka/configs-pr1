@@ -1,0 +1,6 @@
+# Стартовый скрипт этапа 3: показать сведения и дерево VFS (empty).
+# Запуск через scripts/os/test_vfs_*: архив data/empty.zip создаётся
+# командой python3 scripts/make_vfs.py.
+vfs-info
+vfs-tree
+exit

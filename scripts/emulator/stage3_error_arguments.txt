@@ -1,0 +1,4 @@
+# Ошибка: неверные аргументы. vfs-tree не принимает аргументов.
+vfs-info
+vfs-tree /home
+vfs-info
