@@ -111,6 +111,7 @@ class EmulatorWindow:
         self.output.insert(tk.END, text + "\n")
         self.output.see(tk.END)
         self.output.config(state=tk.DISABLED)
+        self.output.update_idletasks()
 
     def on_enter(self, event):
         """Обработать нажатие клавиши Enter в поле ввода.
@@ -175,7 +176,8 @@ class EmulatorWindow:
             if not self.run_script_line(line):
                 self.write(SCRIPT_STOPPED.format(number))
                 return
-        self.write(SCRIPT_DONE)
+        if not self.closed:
+            self.write(SCRIPT_DONE)
 
     def run_script_line(self, line):
         """Показать строку скрипта и выполнить её.
