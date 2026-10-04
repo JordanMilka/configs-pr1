@@ -1,11 +1,14 @@
+samples:
+	python3 scripts/make_vfs.py data
+
 run:
 	python3 -m src.main
 
-run-script:
-	python3 -m src.main --vfs data/vfs.zip \
-		--script scripts/emulator/stage2_demo.txt
+run-script: samples
+	python3 -m src.main --vfs data/nested.zip \
+		--script scripts/emulator/stage3_all.txt
 
 test:
 	python3 -m unittest discover -s tests -t . -v
 
-.PHONY: run run-script test
+.PHONY: samples run run-script test
