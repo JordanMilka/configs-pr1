@@ -4,10 +4,11 @@
 обработчик принимает список аргументов и объект Session и возвращает
 текст для вывода. Здесь собраны служебные команды vfs-info и
 vfs-tree и команда exit; ls и cd находятся в src.navigation, cat и
-uniq - в src.text_tools.
+uniq - в src.text_tools, chown и rm - в src.modification.
 """
 
 from src.errors import CommandError, ExitRequested
+from src.modification import command_chown, command_rm
 from src.navigation import command_cd, command_ls
 from src.text_tools import command_cat, command_uniq
 from src.vfs import format_info, format_tree
@@ -82,6 +83,8 @@ COMMANDS = {
     "cd": command_cd,
     "cat": command_cat,
     "uniq": command_uniq,
+    "chown": command_chown,
+    "rm": command_rm,
     "vfs-info": command_vfs_info,
     "vfs-tree": command_vfs_tree,
     "exit": command_exit,
