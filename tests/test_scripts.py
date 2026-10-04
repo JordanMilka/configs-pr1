@@ -42,6 +42,17 @@ def find_scripts():
     return sorted(found)
 
 
+def expects_error(path):
+    """Определить, должен ли скрипт остановиться на ошибке.
+
+    :param path: путь к стартовому скрипту.
+    :return: True, если слово error есть в имени файла или каталога.
+    """
+    folder = os.path.basename(os.path.dirname(path))
+    name = os.path.basename(path)
+    return ERROR_MARK in name or ERROR_MARK in folder
+
+
 def run_script(session, path):
     """Выполнить скрипт без графического интерфейса.
 
@@ -94,12 +105,9 @@ class ScriptsTest(unittest.TestCase):
         """Скрипты ведут себя так, как заявлено в их названии."""
         for path in find_scripts():
             name = os.path.splitext(os.path.basename(path))[0]
-            expect_error = ERROR_MARK in name or ERROR_MARK in path.split(
-                os.sep
-            )[-2]
             with self.subTest(script=name):
                 result = run_script(self.make_session(name), path)
-                self.assertEqual(result, not expect_error)
+                self.assertEqual(result, not expects_error(path))
 
     def test_stage2_scripts_without_vfs(self):
         """Скрипты этапа 2 работают и без VFS (с пустым корнем)."""
@@ -109,7 +117,7 @@ class ScriptsTest(unittest.TestCase):
                 continue
             with self.subTest(script=name):
                 result = run_script(Session(), path)
-                self.assertEqual(result, ERROR_MARK not in name)
+                self.assertEqual(result, not expects_error(path))
 
 
 if __name__ == "__main__":
