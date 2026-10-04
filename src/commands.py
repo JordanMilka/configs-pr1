@@ -1,28 +1,15 @@
 """Команды эмулятора командной оболочки.
 
-Команды ls и cd пока являются заглушками: они выводят собственное
-имя и переданные аргументы. Команда exit завершает работу эмулятора.
-Служебные команды vfs-info и vfs-tree показывают сведения о
-подключённой VFS и её дерево. Каждый обработчик принимает список
-аргументов и объект Session.
+Реестр COMMANDS связывает имена команд с обработчиками. Каждый
+обработчик принимает список аргументов и объект Session и возвращает
+текст для вывода. Здесь собраны служебные команды vfs-info и
+vfs-tree и команда exit; ls и cd находятся в src.navigation, cat и
+uniq - в src.text_tools.
 """
 
 from src.errors import CommandError, ExitRequested
+from src.navigation import command_cd, command_ls
 from src.vfs import format_info, format_tree
-
-MAX_CD_ARGUMENTS = 1
-
-
-def format_stub(name, arguments):
-    """Составить ответ команды-заглушки.
-
-    :param name: имя команды.
-    :param arguments: список аргументов команды.
-    :return: строка с именем команды и её аргументами.
-    """
-    if not arguments:
-        return "{0}: аргументы отсутствуют".format(name)
-    return "{0}: {1}".format(name, " ".join(arguments))
 
 
 def reject_arguments(name, arguments):
@@ -36,29 +23,6 @@ def reject_arguments(name, arguments):
         raise CommandError(
             "{0}: команда не принимает аргументов".format(name)
         )
-
-
-def command_ls(arguments, session):
-    """Выполнить заглушку команды ls.
-
-    :param arguments: список аргументов команды.
-    :param session: состояние сеанса.
-    :return: строка с именем команды и её аргументами.
-    """
-    return format_stub("ls", arguments)
-
-
-def command_cd(arguments, session):
-    """Выполнить заглушку команды cd.
-
-    :param arguments: список аргументов команды.
-    :param session: состояние сеанса.
-    :return: строка с именем команды и её аргументами.
-    :raises CommandError: если аргументов больше одного.
-    """
-    if len(arguments) > MAX_CD_ARGUMENTS:
-        raise CommandError("cd: слишком много аргументов")
-    return format_stub("cd", arguments)
 
 
 def command_exit(arguments, session):

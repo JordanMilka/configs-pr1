@@ -25,7 +25,7 @@ MIN_WINDOW_WIDTH = 640
 MIN_WINDOW_HEIGHT = 400
 PADDING = 4
 FONT = "TkFixedFont"
-PROMPT = "$ "
+PROMPT = "{0}$ "
 START_DELAY_MS = 100
 FIRST_LINE_NUMBER = 1
 WELCOME = "Эмулятор оболочки. Доступны команды: {0}."
@@ -45,6 +45,15 @@ def get_user_name():
         return getpass.getuser()
     except OSError:
         return "user"
+
+
+def build_prompt(session):
+    """Сформировать приглашение к вводу с текущим каталогом.
+
+    :param session: состояние сеанса.
+    :return: строка вида "/home/user$ ".
+    """
+    return PROMPT.format(session.cwd_path())
 
 
 def build_title():
@@ -152,7 +161,7 @@ class EmulatorWindow:
         """
         line = self.entry.get()
         self.entry.delete(0, tk.END)
-        self.write(PROMPT + line)
+        self.write(build_prompt(self.session) + line)
         self.run_line(line)
         return "break"
 
@@ -178,7 +187,9 @@ class EmulatorWindow:
         :return: True, если команда выполнена без ошибок.
         """
         try:
-            self.write(execute(tokens, self.session))
+            output = execute(tokens, self.session)
+            if output:
+                self.write(output)
         except CommandError as error:
             self.write(str(error))
             return False
@@ -218,5 +229,5 @@ class EmulatorWindow:
         """
         if not is_executable_line(line):
             return True
-        self.write(PROMPT + line.strip())
+        self.write(build_prompt(self.session) + line.strip())
         return self.run_line(line)

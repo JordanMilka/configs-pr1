@@ -2,7 +2,8 @@
 
 import unittest
 
-from src.commands import CommandError, ExitRequested, execute
+from src.commands import COMMANDS, execute
+from src.errors import CommandError, ExitRequested
 from src.session import Session
 from src.vfs import load_vfs
 from tests.helpers import make_temp_directory, make_zip
@@ -11,40 +12,22 @@ ENTRIES = {"docs/a.txt": b"a\n", "image.bin": bytes([0, 255])}
 
 
 class ExecuteTest(unittest.TestCase):
-    """Проверка выполнения команд-заглушек и exit."""
+    """Проверка выполнения команды exit и поиска команд."""
 
     def setUp(self):
         """Создать сеанс без VFS."""
         self.session = Session()
 
-    def test_ls_without_arguments(self):
-        """Команда ls без аргументов сообщает об их отсутствии."""
-        self.assertEqual(
-            execute(["ls"], self.session), "ls: аргументы отсутствуют"
-        )
-
-    def test_ls_with_arguments(self):
-        """Команда ls выводит своё имя и аргументы."""
-        self.assertEqual(
-            execute(["ls", "-l", "/tmp"], self.session),
-            "ls: -l /tmp",
-        )
-
-    def test_cd_with_one_argument(self):
-        """Команда cd принимает один аргумент."""
-        self.assertEqual(
-            execute(["cd", "/home"], self.session), "cd: /home"
-        )
-
-    def test_cd_with_two_arguments(self):
-        """Команда cd сообщает об избыточных аргументах."""
-        with self.assertRaises(CommandError):
-            execute(["cd", "a", "b"], self.session)
-
     def test_unknown_command(self):
         """Неизвестная команда приводит к ошибке."""
-        with self.assertRaises(CommandError):
+        with self.assertRaises(CommandError) as context:
             execute(["unknown"], self.session)
+        self.assertEqual(str(context.exception), "unknown: команда не найдена")
+
+    def test_registered_commands(self):
+        """В реестре есть все команды эмулятора."""
+        expected = ["ls", "cd", "vfs-info", "vfs-tree", "exit"]
+        self.assertEqual(list(COMMANDS), expected)
 
     def test_exit(self):
         """Команда exit запрашивает завершение работы."""
