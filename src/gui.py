@@ -3,19 +3,21 @@
 Окно содержит область вывода диалога и однострочное поле ввода.
 Заголовок окна формируется по данным реальной операционной
 системы в формате "Эмулятор - [username@hostname]". При запуске
-окно показывает параметры командной строки и, если он задан,
-выполняет стартовый скрипт.
+окно показывает параметры командной строки, загружает VFS и, если
+задан стартовый скрипт, выполняет его. Если VFS загрузить не
+удалось, об ошибке сообщается, а стартовый скрипт не выполняется.
 """
 
 import getpass
 import socket
 import tkinter as tk
 
-from src.commands import CommandError, ExitRequested, execute
+from src.commands import COMMANDS, CommandError, ExitRequested, execute
 from src.config import format_config
 from src.parser import ParseError, parse_line
 from src.session import Session
 from src.script import ScriptError, is_executable_line, read_script_lines
+from src.vfs import VfsError, format_summary, load_vfs
 
 OUTPUT_HEIGHT = 24
 OUTPUT_WIDTH = 80
@@ -26,7 +28,10 @@ FONT = "TkFixedFont"
 PROMPT = "$ "
 START_DELAY_MS = 100
 FIRST_LINE_NUMBER = 1
-WELCOME = "Эмулятор оболочки. Доступны команды: ls, cd, exit."
+WELCOME = "Эмулятор оболочки. Доступны команды: {0}."
+VFS_LOADED = "VFS загружена: {0}"
+VFS_ERROR = "ошибка загрузки VFS: {0}"
+SCRIPT_SKIPPED = "Стартовый скрипт не выполнен: VFS не загружена."
 SCRIPT_DONE = "Стартовый скрипт выполнен."
 SCRIPT_STOPPED = "Скрипт остановлен из-за ошибки в строке {0}."
 
@@ -78,7 +83,7 @@ class EmulatorWindow:
         self.place_widgets()
         self.entry.bind("<Return>", self.on_enter)
         self.entry.focus_set()
-        self.write(WELCOME)
+        self.write(WELCOME.format(", ".join(COMMANDS)))
         self.master.after(START_DELAY_MS, self.start)
 
     def place_widgets(self):
@@ -99,10 +104,33 @@ class EmulatorWindow:
         )
 
     def start(self):
-        """Показать параметры запуска и выполнить стартовый скрипт."""
+        """Показать параметры, загрузить VFS, выполнить скрипт."""
         self.write(format_config(self.config))
-        if self.config.script_path is not None:
-            self.run_script(self.config.script_path)
+        vfs_ready = self.connect_vfs()
+        script_path = self.config.script_path
+        if script_path is None:
+            return
+        if vfs_ready:
+            self.run_script(script_path)
+        else:
+            self.write(SCRIPT_SKIPPED)
+
+    def connect_vfs(self):
+        """Загрузить VFS, заданную параметром командной строки.
+
+        :return: True, если VFS не требуется или успешно загружена,
+            и False, если при загрузке произошла ошибка.
+        """
+        path = self.config.vfs_path
+        if path is None:
+            return True
+        try:
+            self.session.vfs = load_vfs(path)
+        except VfsError as error:
+            self.write(VFS_ERROR.format(error))
+            return False
+        self.write(VFS_LOADED.format(format_summary(self.session.vfs)))
+        return True
 
     def write(self, text):
         """Добавить строку текста в область вывода.
