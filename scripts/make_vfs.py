@@ -14,6 +14,20 @@ ARCHIVE_SUFFIX = ".zip"
 BROKEN_NAME = "broken"
 BROKEN_TEXT = "Это текстовый файл, а не ZIP-архив.\n"
 ENCODING = "utf-8"
+FIXED_TIME = (2026, 1, 15, 10, 30, 0)
+FILE_MODE = 0o644
+DIRECTORY_MODE = 0o755
+FILE_TYPE = 0o100000
+DIRECTORY_TYPE = 0o40000
+UNIX_MODE_SHIFT = 16
+MSDOS_DIRECTORY = 0x10
+MODES = {
+    "etc/motd": 0o444,
+    "home/user/.profile": 0o600,
+    "home/user/docs/report.txt": 0o640,
+    "home/user/empty_dir/": 0o700,
+}
+WORDS = b"apple\napple\nApple\nbanana\ncherry\ncherry\ncherry\napple\n"
 PNG_HEADER = bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00])
 RANDOM_BYTES = bytes([0x00, 0x01, 0x02, 0xFE, 0xFF])
 
@@ -33,6 +47,8 @@ SEVERAL = {
 
 NESTED = {
     "home/user/docs/report.txt": "Отчёт за квартал.\n".encode(ENCODING),
+    "home/user/docs/words.txt": WORDS,
+    "home/user/.profile": b"export PATH=/usr/bin\n",
     "home/user/docs/archive/2026/summary.txt": b"summary\nsummary\n",
     "home/user/pictures/logo.png": PNG_HEADER,
     "home/user/empty_dir/": b"",
@@ -49,15 +65,35 @@ SAMPLES = {
 }
 
 
+def entry_info(name):
+    """Создать описание записи с правами и фиксированным временем.
+
+    :param name: путь записи; каталог оканчивается на "/".
+    :return: объект ZipInfo с атрибутами Unix.
+    """
+    is_directory = name.endswith("/")
+    default = DIRECTORY_MODE if is_directory else FILE_MODE
+    kind = DIRECTORY_TYPE if is_directory else FILE_TYPE
+    info = zipfile.ZipInfo(name, FIXED_TIME)
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = (kind | MODES.get(name, default)) << UNIX_MODE_SHIFT
+    if is_directory:
+        info.external_attr |= MSDOS_DIRECTORY
+    return info
+
+
 def write_archive(path, entries):
     """Создать ZIP-архив с заданными записями.
+
+    Время изменения всех записей одинаково, чтобы вывод ls -l не
+    зависел от момента создания образца.
 
     :param path: путь к создаваемому архиву.
     :param entries: словарь "путь записи -> содержимое в байтах".
     """
-    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
+    with zipfile.ZipFile(path, "w") as archive:
         for name, data in entries.items():
-            archive.writestr(name, data)
+            archive.writestr(entry_info(name), data)
 
 
 def write_broken(path):

@@ -1,0 +1,4 @@
+# Ошибка cat: указан каталог.
+cat /etc/motd
+cat /home
+cat /etc/hostname

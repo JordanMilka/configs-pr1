@@ -1,0 +1,4 @@
+# Ошибка ls: неверный ключ.
+ls -l /etc
+ls -z /etc
+ls /var

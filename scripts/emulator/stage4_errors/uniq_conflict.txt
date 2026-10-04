@@ -1,0 +1,4 @@
+# Ошибка uniq: ключи -d и -u несовместимы.
+cd /home/user/docs
+uniq -d -u words.txt
+uniq words.txt

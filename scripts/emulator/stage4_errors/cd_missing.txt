@@ -1,0 +1,4 @@
+# Ошибка cd: каталог не существует.
+cd /home/user
+cd documents
+ls

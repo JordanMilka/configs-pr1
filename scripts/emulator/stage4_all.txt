@@ -1,0 +1,50 @@
+# Этап 4: все команды в рабочих режимах (VFS data/nested.zip).
+# Запуск: python3 -m src.main --vfs data/nested.zip \
+#     --script scripts/emulator/stage4_all.txt
+# Скрипт останавливается на первой ошибке, поэтому ошибочные
+# ситуации проверяют отдельные скрипты каталога stage4_errors.
+
+# ls: корень, подробный список, скрытые имена
+ls
+ls -l
+ls -a /home/user
+ls -la /home/user
+
+# ls: каталоги и файлы по абсолютным и относительным путям
+ls /etc
+ls /etc /var/log
+ls /etc/motd /etc/hostname
+ls -l /etc/hostname /etc/motd
+ls home/user/pictures
+
+# cd: абсолютные и относительные пути, "." и "..", без аргументов
+cd /home/user
+ls
+cd docs
+ls -l
+cd archive/2026
+ls
+cd ../..
+cd ./..
+cd
+cd /home/user/docs
+
+# cat: один файл, несколько файлов, нумерация, двоичный файл
+cat report.txt
+cat -n words.txt
+cat /etc/hostname /etc/motd
+cat ../pictures/logo.png
+
+# uniq: без ключей и со всеми ключами
+uniq words.txt
+uniq -c words.txt
+uniq -d words.txt
+uniq -u words.txt
+uniq -i words.txt
+uniq -ci words.txt
+uniq -cd words.txt
+uniq archive/2026/summary.txt
+
+# Служебная команда и завершение работы
+vfs-info
+exit

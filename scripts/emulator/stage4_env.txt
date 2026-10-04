@@ -1,0 +1,8 @@
+# Этап 4: переменные окружения реальной ОС в путях.
+# Переменные EMU_DIR и EMU_FILE задаёт скрипт scripts/os/test_stage4_env.
+cd $EMU_DIR
+ls -l
+cat $EMU_FILE
+uniq -c ${EMU_FILE}
+cat ${EMU_DIR}/${EMU_FILE}
+exit

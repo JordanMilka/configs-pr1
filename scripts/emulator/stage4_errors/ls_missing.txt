@@ -1,0 +1,4 @@
+# Ошибка ls: путь не существует.
+ls /etc
+ls /no/such/dir
+ls /var

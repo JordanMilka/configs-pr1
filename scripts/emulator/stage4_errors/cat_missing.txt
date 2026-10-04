@@ -1,0 +1,4 @@
+# Ошибка cat: файл не существует.
+cat /etc/hostname
+cat /etc/missing.txt
+cat /etc/motd

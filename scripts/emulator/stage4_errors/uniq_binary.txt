@@ -1,0 +1,4 @@
+# Ошибка uniq: двоичный файл.
+cd /home/user/pictures
+uniq logo.png
+ls

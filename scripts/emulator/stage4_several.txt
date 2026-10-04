@@ -1,0 +1,13 @@
+# Этап 4: команды на VFS с несколькими файлами (data/several.zip).
+ls
+ls -l
+cat readme.txt
+cat -n notes.txt
+uniq -c fruits.txt
+uniq -d fruits.txt
+uniq -u fruits.txt
+cat data.bin
+ls empty
+cd empty
+ls -a
+exit
