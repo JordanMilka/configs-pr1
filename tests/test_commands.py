@@ -4,6 +4,10 @@ import unittest
 
 from src.commands import CommandError, ExitRequested, execute
 from src.session import Session
+from src.vfs import load_vfs
+from tests.helpers import make_temp_directory, make_zip
+
+ENTRIES = {"docs/a.txt": b"a\n", "image.bin": bytes([0, 255])}
 
 
 class ExecuteTest(unittest.TestCase):
@@ -51,6 +55,49 @@ class ExecuteTest(unittest.TestCase):
         """Команда exit не принимает аргументов."""
         with self.assertRaises(CommandError):
             execute(["exit", "now"], self.session)
+
+
+class VfsCommandsTest(unittest.TestCase):
+    """Проверка служебных команд vfs-info и vfs-tree."""
+
+    def setUp(self):
+        """Создать сеансы с VFS и без неё."""
+        directory = make_temp_directory(self)
+        path = make_zip(directory, "t.zip", ENTRIES)
+        self.session = Session(load_vfs(path))
+        self.empty_session = Session()
+
+    def test_vfs_info(self):
+        """Команда vfs-info показывает сведения о VFS."""
+        text = execute(["vfs-info"], self.session)
+        self.assertIn("Каталогов: 1", text)
+        self.assertIn("Файлов: 2 (двоичных: 1)", text)
+
+    def test_vfs_tree(self):
+        """Команда vfs-tree показывает дерево VFS."""
+        expected = "/\n├── docs/\n│   └── a.txt\n└── image.bin [двоичный]"
+        self.assertEqual(execute(["vfs-tree"], self.session), expected)
+
+    def test_vfs_info_with_arguments(self):
+        """Команда vfs-info не принимает аргументов."""
+        with self.assertRaises(CommandError):
+            execute(["vfs-info", "x"], self.session)
+
+    def test_vfs_tree_with_arguments(self):
+        """Команда vfs-tree не принимает аргументов."""
+        with self.assertRaises(CommandError):
+            execute(["vfs-tree", "x"], self.session)
+
+    def test_vfs_info_without_vfs(self):
+        """Без VFS команда vfs-info сообщает об ошибке."""
+        with self.assertRaises(CommandError) as context:
+            execute(["vfs-info"], self.empty_session)
+        self.assertIn("--vfs", str(context.exception))
+
+    def test_vfs_tree_without_vfs(self):
+        """Без VFS команда vfs-tree сообщает об ошибке."""
+        with self.assertRaises(CommandError):
+            execute(["vfs-tree"], self.empty_session)
 
 
 if __name__ == "__main__":

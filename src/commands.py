@@ -2,8 +2,12 @@
 
 Команды ls и cd пока являются заглушками: они выводят собственное
 имя и переданные аргументы. Команда exit завершает работу эмулятора.
-Каждый обработчик принимает список аргументов и объект Session.
+Служебные команды vfs-info и vfs-tree показывают сведения о
+подключённой VFS и её дерево. Каждый обработчик принимает список
+аргументов и объект Session.
 """
+
+from src.vfs import format_info, format_tree
 
 MAX_CD_ARGUMENTS = 1
 
@@ -76,9 +80,50 @@ def command_exit(arguments, session):
     raise ExitRequested()
 
 
+def require_vfs(name, session):
+    """Получить подключённую VFS или сообщить, что её нет.
+
+    :param name: имя команды для сообщения об ошибке.
+    :param session: состояние сеанса.
+    :return: объект Vfs.
+    :raises CommandError: если VFS не подключена.
+    """
+    if session.vfs is None:
+        raise CommandError(
+            "{0}: VFS не подключена, задайте параметр --vfs".format(name)
+        )
+    return session.vfs
+
+
+def command_vfs_info(arguments, session):
+    """Показать сведения о подключённой VFS.
+
+    :param arguments: список аргументов команды.
+    :param session: состояние сеанса.
+    :return: многострочный текст со сведениями о VFS.
+    :raises CommandError: если переданы аргументы или нет VFS.
+    """
+    reject_arguments("vfs-info", arguments)
+    return format_info(require_vfs("vfs-info", session))
+
+
+def command_vfs_tree(arguments, session):
+    """Показать дерево каталогов и файлов подключённой VFS.
+
+    :param arguments: список аргументов команды.
+    :param session: состояние сеанса.
+    :return: многострочный текст с деревом VFS.
+    :raises CommandError: если переданы аргументы или нет VFS.
+    """
+    reject_arguments("vfs-tree", arguments)
+    return format_tree(require_vfs("vfs-tree", session))
+
+
 COMMANDS = {
     "ls": command_ls,
     "cd": command_cd,
+    "vfs-info": command_vfs_info,
+    "vfs-tree": command_vfs_tree,
     "exit": command_exit,
 }
 
