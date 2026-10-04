@@ -44,9 +44,10 @@ def command_help(arguments, session):
         raise CommandError("help: слишком много аргументов")
     if not arguments:
         return format_list(list(COMMANDS))
-    if arguments[0] not in HELP:
-        raise CommandError("help: нет справки по '{0}'".format(arguments[0]))
-    return format_entry(arguments[0])
+    name = arguments[0]
+    if name not in HELP:
+        raise CommandError("help: нет справки по '{0}'".format(name))
+    return format_entry(name)
 
 
 def command_exit(arguments, session):
