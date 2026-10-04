@@ -24,6 +24,7 @@ TREE_BRANCH = "├── "
 TREE_LAST = "└── "
 TREE_PIPE = "│   "
 TREE_SPACE = "    "
+LAST_INDEX = -1
 ARCHIVE_ERRORS = (
     zipfile.BadZipFile,
     RuntimeError,
@@ -292,7 +293,7 @@ def render_tree(directory, prefix=""):
     lines = []
     children = directory.sorted_children()
     for child in children:
-        last = child is children[-1]
+        last = child is children[LAST_INDEX]
         branch = TREE_LAST if last else TREE_BRANCH
         lines.append(prefix + branch + node_label(child))
         if isinstance(child, VfsDirectory):
