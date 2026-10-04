@@ -9,6 +9,7 @@ uniq - в src.text_tools.
 
 from src.errors import CommandError, ExitRequested
 from src.navigation import command_cd, command_ls
+from src.text_tools import command_cat, command_uniq
 from src.vfs import format_info, format_tree
 
 
@@ -79,6 +80,8 @@ def command_vfs_tree(arguments, session):
 COMMANDS = {
     "ls": command_ls,
     "cd": command_cd,
+    "cat": command_cat,
+    "uniq": command_uniq,
     "vfs-info": command_vfs_info,
     "vfs-tree": command_vfs_tree,
     "exit": command_exit,
