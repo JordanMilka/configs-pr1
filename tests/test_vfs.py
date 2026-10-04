@@ -3,11 +3,13 @@
 import base64
 import os
 import unittest
+import zipfile
 
 from src.vfs import (
     VfsDirectory,
     VfsError,
     VfsFile,
+    entry_mode,
     format_info,
     format_summary,
     format_tree,
@@ -122,6 +124,45 @@ class LoadVfsErrorTest(unittest.TestCase):
         path = make_zip(self.directory, "t.zip", entries)
         with self.assertRaises(VfsError):
             load_vfs(path)
+
+
+class NodeAttributesTest(unittest.TestCase):
+    """Проверка прав, владельца и времени изменения узлов."""
+
+    def setUp(self):
+        """Создать архив с явными правами и временем записей."""
+        directory = make_temp_directory(self)
+        self.path = os.path.join(directory, "m.zip")
+        with zipfile.ZipFile(self.path, "w") as archive:
+            info = zipfile.ZipInfo("d/f.txt", (2026, 1, 15, 10, 30, 0))
+            info.external_attr = 0o640 << 16
+            archive.writestr(info, b"x")
+            dir_info = zipfile.ZipInfo("d/", (2025, 5, 6, 7, 8, 0))
+            dir_info.external_attr = (0o40750 << 16) | 0x10
+            archive.writestr(dir_info, b"")
+
+    def test_mode_and_time_from_archive(self):
+        """Права и время берутся из записей архива."""
+        root = load_vfs(self.path).root
+        node = root.children["d"].children["f.txt"]
+        self.assertEqual(node.mode, 0o640)
+        self.assertEqual(node.mtime, (2026, 1, 15, 10, 30, 0))
+        self.assertEqual(root.children["d"].mode, 0o750)
+        self.assertEqual(root.children["d"].mtime, (2025, 5, 6, 7, 8, 0))
+
+    def test_default_mode(self):
+        """Без атрибутов Unix действуют права по умолчанию."""
+        self.assertEqual(entry_mode(zipfile.ZipInfo("f.txt")), 0o644)
+        self.assertEqual(entry_mode(zipfile.ZipInfo("d/")), 0o755)
+
+    def test_default_owner(self):
+        """Владелец и группа по умолчанию - root."""
+        node = load_vfs(self.path).root.children["d"]
+        self.assertEqual((node.owner, node.group), ("root", "root"))
+
+    def test_directory_size_is_zero(self):
+        """Размер каталога равен нулю."""
+        self.assertEqual(load_vfs(self.path).root.children["d"].size, 0)
 
 
 class HelpersTest(unittest.TestCase):

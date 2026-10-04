@@ -19,6 +19,13 @@ CURRENT_PART = "."
 PARENT_PART = ".."
 NUL_BYTE = b"\x00"
 ROOT_NAME = "/"
+DEFAULT_OWNER = "root"
+DEFAULT_GROUP = "root"
+DEFAULT_FILE_MODE = 0o644
+DEFAULT_DIRECTORY_MODE = 0o755
+PERMISSION_MASK = 0o777
+UNIX_MODE_SHIFT = 16
+DEFAULT_MTIME = (1980, 1, 1, 0, 0, 0)
 BINARY_MARK = " [двоичный]"
 TREE_BRANCH = "├── "
 TREE_LAST = "└── "
@@ -58,19 +65,47 @@ def is_binary(data):
     return False
 
 
-class VfsFile:
+class VfsNode:
+    """Общая часть файла и каталога VFS.
+
+    Размер каталога равен нулю. Права, владелец, группа и время
+    изменения хранятся только в памяти.
+    """
+
+    size = 0
+
+    def __init__(self, name, mode, mtime):
+        """Создать узел.
+
+        :param name: имя узла без пути.
+        :param mode: права доступа в виде числа (например, 0o644).
+        :param mtime: время изменения: (год, месяц, день, час, минута,
+            секунда).
+        """
+        self.name = name
+        self.mode = mode
+        self.mtime = mtime
+        self.owner = DEFAULT_OWNER
+        self.group = DEFAULT_GROUP
+
+
+class VfsFile(VfsNode):
     """Файл VFS.
 
     Текстовое содержимое хранится строкой, двоичное - строкой base64.
     """
 
-    def __init__(self, name, data):
+    def __init__(
+        self, name, data, mode=DEFAULT_FILE_MODE, mtime=DEFAULT_MTIME
+    ):
         """Создать файл по его имени и содержимому.
 
         :param name: имя файла без пути.
         :param data: содержимое файла в виде байтов.
+        :param mode: права доступа.
+        :param mtime: время изменения.
         """
-        self.name = name
+        super().__init__(name, mode, mtime)
         self.size = len(data)
         self.binary = is_binary(data)
         if self.binary:
@@ -79,15 +114,19 @@ class VfsFile:
             self.content = data.decode(ENCODING)
 
 
-class VfsDirectory:
+class VfsDirectory(VfsNode):
     """Каталог VFS."""
 
-    def __init__(self, name):
+    def __init__(
+        self, name, mode=DEFAULT_DIRECTORY_MODE, mtime=DEFAULT_MTIME
+    ):
         """Создать пустой каталог.
 
         :param name: имя каталога без пути.
+        :param mode: права доступа.
+        :param mtime: время изменения.
         """
-        self.name = name
+        super().__init__(name, mode, mtime)
         self.children = {}
 
     def sorted_children(self):
@@ -157,12 +196,13 @@ def split_path(name):
     return parts
 
 
-def make_directories(start, parts, name):
+def make_directories(start, parts, name, mtime=DEFAULT_MTIME):
     """Создать цепочку каталогов, пропуская уже существующие.
 
     :param start: каталог, с которого начинается цепочка.
     :param parts: имена вложенных каталогов.
     :param name: путь записи архива для сообщения об ошибке.
+    :param mtime: время изменения новых каталогов.
     :return: самый глубокий каталог цепочки.
     :raises VfsError: если на месте каталога уже есть файл.
     """
@@ -170,12 +210,27 @@ def make_directories(start, parts, name):
     for part in parts:
         child = current.children.get(part)
         if child is None:
-            child = VfsDirectory(part)
+            child = VfsDirectory(part, mtime=mtime)
             current.children[part] = child
         elif isinstance(child, VfsFile):
             raise VfsError("файл и каталог с одним именем: {0}".format(name))
         current = child
     return current
+
+
+def entry_mode(info):
+    """Получить права доступа записи ZIP-архива.
+
+    :param info: описание записи архива (ZipInfo).
+    :return: права из атрибутов Unix или значения по умолчанию, если
+        архив создан не в Unix.
+    """
+    mode = (info.external_attr >> UNIX_MODE_SHIFT) & PERMISSION_MASK
+    if mode:
+        return mode
+    if info.is_dir():
+        return DEFAULT_DIRECTORY_MODE
+    return DEFAULT_FILE_MODE
 
 
 def add_entry(root, info, data):
@@ -189,16 +244,23 @@ def add_entry(root, info, data):
     parts = split_path(info.filename)
     if not parts:
         return
+    mode = entry_mode(info)
     if info.is_dir():
-        make_directories(root, parts, info.filename)
+        directory = make_directories(
+            root, parts, info.filename, info.date_time
+        )
+        directory.mode = mode
+        directory.mtime = info.date_time
         return
-    directory = make_directories(root, parts[:-1], info.filename)
+    directory = make_directories(
+        root, parts[:-1], info.filename, info.date_time
+    )
     name = parts[-1]
     if name in directory.children:
         raise VfsError(
             "повторяющийся путь в архиве: {0}".format(info.filename)
         )
-    directory.children[name] = VfsFile(name, data)
+    directory.children[name] = VfsFile(name, data, mode, info.date_time)
 
 
 def build_tree(archive):
