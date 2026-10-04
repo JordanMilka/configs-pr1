@@ -7,17 +7,10 @@
 аргументов и объект Session.
 """
 
+from src.errors import CommandError, ExitRequested
 from src.vfs import format_info, format_tree
 
 MAX_CD_ARGUMENTS = 1
-
-
-class CommandError(Exception):
-    """Ошибка выполнения команды эмулятора."""
-
-
-class ExitRequested(Exception):
-    """Запрос пользователя на завершение работы эмулятора."""
 
 
 def format_stub(name, arguments):

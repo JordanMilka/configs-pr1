@@ -125,11 +125,12 @@ class EmulatorWindow:
         if path is None:
             return True
         try:
-            self.session.vfs = load_vfs(path)
+            vfs = load_vfs(path)
         except VfsError as error:
             self.write(VFS_ERROR.format(error))
             return False
-        self.write(VFS_LOADED.format(format_summary(self.session.vfs)))
+        self.session.attach(vfs)
+        self.write(VFS_LOADED.format(format_summary(vfs)))
         return True
 
     def write(self, text):
