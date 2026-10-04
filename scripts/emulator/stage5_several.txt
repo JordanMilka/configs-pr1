@@ -1,0 +1,13 @@
+# Этап 5: chown, rm и help на VFS с несколькими файлами
+# (data/several.zip).
+help ls
+ls -l
+chown -R alice:students /
+ls -l
+rm data.bin fruits.txt
+rm -r empty
+ls
+rm -rf /nonexistent notes.txt
+vfs-tree
+vfs-info
+exit

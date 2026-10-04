@@ -1,0 +1,4 @@
+# Ошибка rm: каталог без ключа -r.
+rm /etc/motd
+rm /home
+ls /home

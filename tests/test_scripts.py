@@ -24,7 +24,11 @@ ERROR_MARK = "error"
 NO_VFS_SCRIPTS = ("stage3_error_no_vfs",)
 OWN_SAMPLES = ("empty", "minimal", "several")
 STAGE2_PREFIX = "stage2_"
-ENVIRONMENT = {"EMU_DIR": "/home/user/docs", "EMU_FILE": "words.txt"}
+ENVIRONMENT = {
+    "EMU_DIR": "/home/user/docs",
+    "EMU_FILE": "words.txt",
+    "EMU_OWNER": "alice:staff",
+}
 
 
 def find_scripts():
@@ -94,12 +98,14 @@ class ScriptsTest(unittest.TestCase):
         return Session(load_vfs(os.path.join(self.samples, sample + ".zip")))
 
     def test_scripts_found(self):
-        """Скрипты этапов 2-4 найдены."""
+        """Скрипты этапов 2-5 найдены."""
         names = [os.path.basename(path) for path in find_scripts()]
         for expected in ("stage2_demo.txt", "stage3_all.txt"):
             self.assertIn(expected, names)
         self.assertIn("stage4_all.txt", names)
         self.assertIn("cd_file.txt", names)
+        self.assertIn("stage5_all.txt", names)
+        self.assertIn("rm_root.txt", names)
 
     def test_every_script(self):
         """Скрипты ведут себя так, как заявлено в их названии."""

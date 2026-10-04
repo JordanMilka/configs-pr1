@@ -1,0 +1,8 @@
+# Этап 5: переменная окружения реальной ОС в записи владельца.
+# Переменную EMU_OWNER (например, alice:staff) задаёт скрипт
+# scripts/os/test_stage5_all.
+chown $EMU_OWNER /home/user/docs/report.txt
+ls -l /home/user/docs
+chown -R ${EMU_OWNER} /etc
+ls -l /etc
+exit

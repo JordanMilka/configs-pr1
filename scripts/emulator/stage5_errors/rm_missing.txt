@@ -1,0 +1,4 @@
+# Ошибка rm: путь не существует.
+rm /etc/motd
+rm /etc/missing
+ls /etc

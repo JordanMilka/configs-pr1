@@ -1,0 +1,4 @@
+# Ошибка chown: неверная запись владельца.
+chown bob /etc/motd
+chown bob: /etc/motd
+ls -l /etc

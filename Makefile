@@ -6,7 +6,7 @@ run:
 
 run-script: samples
 	python3 -m src.main --vfs data/nested.zip \
-		--script scripts/emulator/stage4_all.txt
+		--script scripts/emulator/stage5_all.txt
 
 test:
 	python3 -m unittest discover -s tests -t . -v

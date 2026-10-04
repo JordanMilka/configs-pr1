@@ -1,0 +1,4 @@
+# Ошибка help: нет справки по команде.
+help ls
+help pwd
+help

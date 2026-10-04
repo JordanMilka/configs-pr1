@@ -1,0 +1,44 @@
+# Этап 5: все команды в рабочих режимах (VFS data/nested.zip).
+# Запуск: python3 -m src.main --vfs data/nested.zip \
+#     --script scripts/emulator/stage5_all.txt
+# Изменения выполняются только в памяти: архив на диске не меняется.
+# Скрипт останавливается на первой ошибке, поэтому ошибочные ситуации
+# проверяют отдельные скрипты каталога stage5_errors.
+
+# help: список команд и справка по каждой команде
+help
+help chown
+help rm
+help help
+
+# chown: только владелец, владелец и группа, только группа
+cd /home/user/docs
+ls -l
+chown alice report.txt
+chown bob:staff words.txt
+chown :admins archive
+ls -l
+
+# chown -R: рекурсивно; несколько файлов в одной команде
+chown -R carol:dev /home/user/docs/archive
+ls -l archive/2026
+chown dave /etc/hostname /etc/motd
+ls -l /etc
+
+# rm: один файл, подробный режим, несколько файлов, -f
+cd /
+rm /var/log/app.log
+rm -v /etc/motd
+rm -v /etc/hostname /home/user/.profile
+rm -f /no/such/file
+ls -a /etc
+
+# rm -r: пустой каталог, каталоги с содержимым, -f для несуществующего
+rm -r /home/user/empty_dir
+rm -rv /home/user/docs/archive /home/user/pictures
+rm -rf /var /no/such/dir
+
+# результат изменений
+vfs-tree
+vfs-info
+exit

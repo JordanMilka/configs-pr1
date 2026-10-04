@@ -1,0 +1,4 @@
+# Ошибка chown: путь не существует.
+chown bob /etc/motd
+chown bob /etc/missing
+ls -l /etc
