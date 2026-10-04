@@ -1,4 +1,4 @@
-"""Тесты команд chown и rm."""
+﻿"""Тесты команд chown и rm."""
 
 import os
 import unittest

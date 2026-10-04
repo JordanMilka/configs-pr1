@@ -1,4 +1,4 @@
-"""Тесты команд cat и uniq."""
+﻿"""Тесты команд cat и uniq."""
 
 import base64
 import unittest

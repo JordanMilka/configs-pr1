@@ -1,4 +1,4 @@
-"""Состояние сеанса работы эмулятора."""
+﻿"""Состояние сеанса работы эмулятора."""
 
 from src.paths import format_path
 from src.vfs import ROOT_NAME, VfsDirectory

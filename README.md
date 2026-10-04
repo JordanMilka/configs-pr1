@@ -1,4 +1,4 @@
-# Эмулятор командной оболочки (вариант 8, этапы 1–5)
+﻿# Эмулятор командной оболочки (вариант 8, этапы 1–5)
 
 ## 1. Общее описание
 
@@ -43,7 +43,7 @@
 │   ├── config.py           параметры командной строки
 │   ├── script.py           чтение стартового скрипта
 │   ├── parser.py           разбор ввода и переменные окружения
-│   ├── errors.py           исключения CommandError и ExitRequested
+│   ├── errors.py           исключения CommandError и ExitRequestedError
 │   ├── options.py          разбор ключей команд (-l, -la, --)
 │   ├── paths.py            пути внутри VFS (".", "..", поиск узлов)
 │   ├── session.py          состояние сеанса: VFS и текущий каталог
@@ -301,7 +301,7 @@ VFS, а стартовый скрипт не выполняется (его ко
 - `parser.py` — переменные окружения и токены: `is_name_symbol`,
   `read_plain_name`, `read_braced_name`, `read_variable_name`,
   `expand_variables(text)`, `parse_line(line)`.
-- `errors.py` — `CommandError` (ошибка команды), `ExitRequested`
+- `errors.py` — `CommandError` (ошибка команды), `ExitRequestedError`
   (запрос на выход).
 - `options.py` — `read_cluster(name, argument, allowed)`,
   `parse_options(name, arguments, allowed)`: ключи и операнды.

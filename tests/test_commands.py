@@ -1,9 +1,9 @@
-"""Тесты команд эмулятора командной оболочки."""
+﻿"""Тесты команд эмулятора командной оболочки."""
 
 import unittest
 
 from src.commands import COMMANDS, execute
-from src.errors import CommandError, ExitRequested
+from src.errors import CommandError, ExitRequestedError
 from src.session import Session
 from src.vfs import load_vfs
 from tests.helpers import make_temp_directory, make_zip
@@ -34,7 +34,7 @@ class ExecuteTest(unittest.TestCase):
 
     def test_exit(self):
         """Команда exit запрашивает завершение работы."""
-        with self.assertRaises(ExitRequested):
+        with self.assertRaises(ExitRequestedError):
             execute(["exit"], self.session)
 
     def test_exit_with_argument(self):

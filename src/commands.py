@@ -1,4 +1,4 @@
-"""Команды эмулятора командной оболочки.
+﻿"""Команды эмулятора командной оболочки.
 
 Реестр COMMANDS связывает имена команд с обработчиками. Каждый
 обработчик принимает список аргументов и объект Session и возвращает
@@ -8,7 +8,7 @@ vfs-tree, help и exit; ls и cd находятся в src.navigation, cat и un
 src.help_text.
 """
 
-from src.errors import CommandError, ExitRequested
+from src.errors import CommandError, ExitRequestedError
 from src.help_text import HELP, format_entry, format_list
 from src.modification import command_chown, command_rm
 from src.navigation import command_cd, command_ls
@@ -56,10 +56,10 @@ def command_exit(arguments, session):
     :param arguments: список аргументов команды.
     :param session: состояние сеанса.
     :raises CommandError: если команде переданы аргументы.
-    :raises ExitRequested: всегда при корректном вызове.
+    :raises ExitRequestedError: всегда при корректном вызове.
     """
     reject_arguments("exit", arguments)
-    raise ExitRequested()
+    raise ExitRequestedError()
 
 
 def require_vfs(name, session):
@@ -123,7 +123,7 @@ def execute(tokens, session):
     :return: текст, который нужно показать пользователю.
     :raises CommandError: если команда неизвестна или её
         аргументы неверны.
-    :raises ExitRequested: если выполнена команда exit.
+    :raises ExitRequestedError: если выполнена команда exit.
     """
     name = tokens[0]
     handler = COMMANDS.get(name)

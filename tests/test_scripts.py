@@ -1,4 +1,4 @@
-"""Тесты стартовых скриптов эмулятора.
+﻿"""Тесты стартовых скриптов эмулятора.
 
 Каждый скрипт из scripts/emulator выполняется без графического
 интерфейса. Скрипты, в имени которых есть слово error, обязаны
@@ -11,7 +11,7 @@ from unittest import mock
 
 from scripts.make_vfs import make_samples
 from src.commands import execute
-from src.errors import CommandError, ExitRequested
+from src.errors import CommandError, ExitRequestedError
 from src.parser import ParseError, parse_line
 from src.script import is_executable_line, read_script_lines
 from src.session import Session
@@ -71,7 +71,7 @@ def run_script(session, path):
             tokens = parse_line(line)
             if tokens:
                 execute(tokens, session)
-        except ExitRequested:
+        except ExitRequestedError:
             return True
         except (CommandError, ParseError):
             return False

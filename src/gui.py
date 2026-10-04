@@ -1,4 +1,4 @@
-"""Графический интерфейс эмулятора командной оболочки.
+﻿"""Графический интерфейс эмулятора командной оболочки.
 
 Окно содержит область вывода диалога и однострочное поле ввода.
 Заголовок окна формируется по данным реальной операционной
@@ -12,7 +12,7 @@ import getpass
 import socket
 import tkinter as tk
 
-from src.commands import COMMANDS, CommandError, ExitRequested, execute
+from src.commands import COMMANDS, CommandError, ExitRequestedError, execute
 from src.config import format_config
 from src.parser import ParseError, parse_line
 from src.session import Session
@@ -193,7 +193,7 @@ class EmulatorWindow:
         except CommandError as error:
             self.write(str(error))
             return False
-        except ExitRequested:
+        except ExitRequestedError:
             self.closed = True
             self.master.destroy()
         return True
